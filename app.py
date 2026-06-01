@@ -6,10 +6,21 @@ WK리그 마케팅 인사이트 대시보드 (WK리그 단독 분석).
 
 from __future__ import annotations
 
+import os
+
+import streamlit as st
+
+# Streamlit Cloud용: st.secrets에 설정된 API 키를 환경변수로 노출
+# (로컬에선 .env가 dotenv로 로드되므로 영향 없음).
+try:
+    for _key in st.secrets:
+        os.environ.setdefault(_key, str(st.secrets[_key]))
+except Exception:
+    pass
+
 import pandas as pd
 import plotly.express as px
 import plotly.graph_objects as go
-import streamlit as st
 
 import analyzers
 import collectors
