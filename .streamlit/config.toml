@@ -1,0 +1,7 @@
+[theme]
+# WK리그 로고 그라데이션 팔레트 (스카이블루 → 퍼플 → 마젠타)
+primaryColor = "#BD5F9C"
+backgroundColor = "#FFFFFF"
+secondaryBackgroundColor = "#F4F7FC"
+textColor = "#2E2A4A"
+font = "sans serif"

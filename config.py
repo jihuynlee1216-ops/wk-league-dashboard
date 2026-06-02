@@ -89,8 +89,15 @@ SPIKE_Z_THRESHOLD = 2.0
 # Claude 모델
 CLAUDE_MODEL = "claude-opus-4-7"
 
-# 대시보드 메인 색상
-COLOR = "#E63946"
+# 대시보드 색상 — WK리그 로고 그라데이션 팔레트 (스카이블루 → 퍼플 → 마젠타)
+COLOR = "#BD5F9C"          # WK 마젠타 (메인)
+COLOR_BLUE = "#85C2EB"     # WK 스카이블루 (보조)
+COLOR_BLUE_DEEP = "#5BA8DD"  # 진한 스카이블루 (라인·텍스트 강조)
+COLOR_PURPLE = "#9C99C5"   # WK 퍼플 (중간톤)
+COLOR_DARK = "#2E2A4A"     # 본문 텍스트 (진남보라)
+
+# 다계열 차트용 색상 시퀀스 (로고 그라데이션 순서)
+PALETTE = ["#85C2EB", "#9C99C5", "#BD5F9C", "#5BA8DD", "#D78FC0", "#7B74B5", "#A8D5F0", "#E6A3CC"]
 
 # 경기 기록 CSV 경로
 MATCH_RECORDS_CSV = "data/match_records.csv"

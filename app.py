@@ -25,9 +25,68 @@ import plotly.graph_objects as go
 import analyzers
 import collectors
 import insights
-from config import COLOR, DEFAULT_PERIOD_DAYS, LEAGUE_NAME
+from config import (
+    COLOR,
+    COLOR_BLUE,
+    COLOR_BLUE_DEEP,
+    COLOR_PURPLE,
+    DEFAULT_PERIOD_DAYS,
+    LEAGUE_NAME,
+    PALETTE,
+)
 
 st.set_page_config(page_title="WK리그 마케팅 인사이트", page_icon="⚽", layout="wide")
+
+# ---------- WK리그 브랜드 테마 ----------
+
+LOGO_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), "assets", "wk_logo_t.png")
+
+st.markdown(
+    f"""
+    <style>
+    /* 메인 타이틀 — 로고 그라데이션 텍스트 */
+    h1 {{
+        background: linear-gradient(90deg, {COLOR_BLUE_DEEP} 0%, {COLOR_PURPLE} 45%, {COLOR} 100%);
+        -webkit-background-clip: text;
+        background-clip: text;
+        -webkit-text-fill-color: transparent;
+        font-weight: 800 !important;
+        width: fit-content;
+    }}
+
+    /* 섹션 헤더 (h2) — 그라데이션 칩 스타일 */
+    h2 {{
+        background: linear-gradient(90deg, rgba(133,194,235,0.18) 0%, rgba(189,95,156,0.14) 60%, rgba(189,95,156,0) 100%);
+        border-radius: 10px;
+        padding: 0.45rem 0.9rem !important;
+        color: #2E2A4A;
+    }}
+
+    /* 메트릭 카드 */
+    [data-testid="stMetric"] {{
+        background: linear-gradient(135deg, #F2F8FD 0%, #FAF1F8 100%);
+        border: 1px solid rgba(156,153,197,0.35);
+        border-radius: 12px;
+        padding: 0.8rem 1rem;
+    }}
+    [data-testid="stMetricValue"] {{
+        color: {COLOR};
+    }}
+
+    /* 사이드바 — 로고 그라데이션 배경 */
+    [data-testid="stSidebar"] {{
+        background: linear-gradient(180deg, #EAF4FC 0%, #F2EFF8 55%, #F9EDF6 100%);
+    }}
+
+    /* 익스팬더 둥근 모서리 */
+    [data-testid="stExpander"] {{
+        border-radius: 12px;
+        border: 1px solid rgba(156,153,197,0.4);
+    }}
+    </style>
+    """,
+    unsafe_allow_html=True,
+)
 
 
 # ---------- 캐싱 ----------
@@ -49,7 +108,8 @@ def get_insight(analysis: dict) -> str:
 
 # ---------- 사이드바 ----------
 
-st.sidebar.title("⚽ 분석 설정")
+st.sidebar.image(LOGO_PATH, width=150)
+st.sidebar.title("분석 설정")
 
 api_status = collectors.get_api_status()
 st.sidebar.subheader("데이터 소스 상태")
@@ -80,7 +140,7 @@ st.sidebar.caption(
 
 # ---------- 데이터 로드 ----------
 
-st.title(f"⚽ {LEAGUE_NAME} 마케팅 인사이트 대시보드")
+st.title(f"{LEAGUE_NAME} 마케팅 인사이트 대시보드")
 st.markdown(
     "공개 데이터로 WK리그의 관심층을 추적하고, 데이터 기반으로 "
     "다음 타겟층과 실행 액션을 도출합니다."
@@ -139,7 +199,7 @@ with col1:
     fig = px.bar(wd_df, x="weekday", y="avg_value",
                  labels={"avg_value": "평균 검색 인덱스", "weekday": "요일"},
                  color_discrete_sequence=[COLOR], text="avg_value")
-    fig.update_traces(textposition="outside")
+    fig.update_traces(textposition="outside", cliponaxis=False)
     fig.update_layout(height=270, showlegend=False)
     st.plotly_chart(fig, width="stretch")
 
@@ -191,7 +251,7 @@ with col1:
         ser_df["date"] = pd.to_datetime(ser_df["date"])
         fig = px.line(ser_df, x="date", y=["naver", "google"],
                       labels={"value": "검색 인덱스", "date": "날짜", "variable": "소스"},
-                      color_discrete_map={"naver": COLOR, "google": "#4285F4"})
+                      color_discrete_map={"naver": COLOR, "google": COLOR_BLUE_DEEP})
         fig.update_layout(height=200, legend={"orientation": "h", "y": -0.3})
         st.plotly_chart(fig, width="stretch")
     else:
@@ -226,7 +286,7 @@ with col1:
         fig = px.bar(team_df, x="avg", y="name", orientation="h",
                      labels={"avg": "평균 검색 인덱스", "name": "구단"},
                      color_discrete_sequence=[COLOR], text="avg")
-        fig.update_traces(textposition="outside")
+        fig.update_traces(textposition="outside", cliponaxis=False)
         fig.update_layout(height=300, showlegend=False,
                           yaxis={"categoryorder": "total ascending"})
         st.plotly_chart(fig, width="stretch")
@@ -247,7 +307,7 @@ with col2:
             help="1에 가까울수록 WK리그 관심이 국가대표 이벤트에 의존적",
         )
         st.markdown(
-            f"WK리그 검색 변동의 **{detrend['explained_ratio']}%**가 "
+            f"WK리그 검색 변동의 **{detrend['explained_ratio']}%가** "
             f"국가대표 검색으로 설명됩니다."
         )
         dt_df = pd.DataFrame([
@@ -259,7 +319,7 @@ with col2:
         ])
         dt_df["date"] = pd.to_datetime(dt_df["date"])
         fig = px.line(dt_df, x="date", y="검색 인덱스", color="구분",
-                      color_discrete_map={"WK리그 원본": "#999", "국대 효과 보정": COLOR})
+                      color_discrete_map={"WK리그 원본": COLOR_BLUE, "국대 효과 보정": COLOR})
         fig.update_layout(height=240, hovermode="x unified",
                           legend={"orientation": "h", "y": -0.3})
         st.plotly_chart(fig, width="stretch")
@@ -326,7 +386,9 @@ with col1:
     gender = demo["gender"]
     if gender:
         fig = px.pie(values=list(gender.values()), names=list(gender.keys()),
-                     color_discrete_sequence=["#264653", COLOR], hole=0.45)
+                     color=list(gender.keys()),
+                     color_discrete_map={"남성": COLOR_BLUE_DEEP, "여성": COLOR},
+                     hole=0.45)
         fig.update_layout(height=300)
         st.plotly_chart(fig, width="stretch")
 
@@ -338,7 +400,7 @@ with col2:
         rows = [{"연령대": k, "비중": age.get(k, 0)} for k in age_order if k in age]
         fig = px.bar(pd.DataFrame(rows), x="연령대", y="비중",
                      color_discrete_sequence=[COLOR], text="비중")
-        fig.update_traces(texttemplate="%{text:.1f}%", textposition="outside")
+        fig.update_traces(texttemplate="%{text:.1f}%", textposition="outside", cliponaxis=False)
         fig.update_layout(height=300, showlegend=False, yaxis_title="비중 (%)")
         st.plotly_chart(fig, width="stretch")
 
@@ -360,7 +422,8 @@ if evo.get("available"):
     share_df = pd.DataFrame(rows)
     share_df["date"] = pd.to_datetime(share_df["date"])
     fig = px.line(share_df, x="date", y="비중", color="연령대",
-                  labels={"비중": "검색 비중 (%)", "date": "날짜"})
+                  labels={"비중": "검색 비중 (%)", "date": "날짜"},
+                  color_discrete_sequence=PALETTE)
     fig.update_layout(height=300, hovermode="x unified")
     st.plotly_chart(fig, width="stretch")
     st.caption("어느 연령대가 새로 유입되고 어느 층이 빠지는지 — '다음 타겟' 도출의 핵심 근거.")
@@ -387,7 +450,7 @@ with col1:
         fig = px.bar(fmt_df, x="format", y="avg_views",
                      color_discrete_sequence=[COLOR], text="avg_views",
                      labels={"avg_views": "평균 조회수", "format": "포맷"})
-        fig.update_traces(texttemplate="%{text:,}", textposition="outside")
+        fig.update_traces(texttemplate="%{text:,}", textposition="outside", cliponaxis=False)
         fig.update_layout(height=320, showlegend=False)
         st.plotly_chart(fig, width="stretch")
 with col2:
@@ -468,8 +531,9 @@ if sent.get("available"):
     with col1:
         fig = px.pie(
             values=[sent["positive"], sent["neutral"], sent["negative"]],
-            names=["긍정", "중립", "부정"],
-            color_discrete_sequence=["#2A9D8F", "#bbbbbb", "#E63946"], hole=0.45)
+            names=["긍정", "중립", "부정"], color=["긍정", "중립", "부정"],
+            color_discrete_map={"긍정": COLOR_BLUE_DEEP, "중립": "#C9CBD8", "부정": COLOR},
+            hole=0.45)
         fig.update_layout(height=300)
         st.plotly_chart(fig, width="stretch")
     with col2:

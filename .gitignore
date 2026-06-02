@@ -6,3 +6,6 @@ venv/
 .DS_Store
 .streamlit/secrets.toml
 cache/
+
+# MS Office 잠금 파일
+~$*
